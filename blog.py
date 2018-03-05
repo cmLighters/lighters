@@ -1,5 +1,6 @@
 #from datetime import datetime
 import os
+from threading import Thread
 from flask import Flask, render_template, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
@@ -12,7 +13,7 @@ from wtforms.validators import DataRequired
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'Can u guess it.'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 # database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://{username}:{password}@{hostname}/{database}'.format(
     username='testuser', password='asdfjkl;', hostname='127.0.0.1', database='cm_flask_blog'
@@ -33,8 +34,14 @@ def send_email(to, subject, template, **kwargs):
     msg = Message(app.config['MAIL_SUBJECT_PREFFIX']+subject, sender=app.config['MAIL_SENDER'], recipients=[to])
     msg.body = render_template(template+'.txt', **kwargs)
     msg.html = render_template(template+'.html', **kwargs)
-    mail.send(msg)
+    thr = Thread(target=send_email_async, args=[msg])
+    thr.start()
+    return thr
+    #mail.send(msg)
 
+def send_email_async(msg):
+    with app.app_context():
+        mail.send(msg)
 
 bootstrap = Bootstrap(app)
 moment = Moment(app)
