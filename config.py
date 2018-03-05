@@ -33,7 +33,7 @@ class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URI') or \
                                              'mysql+pymysql://{username}:{password}@{hostname}/{database}'.format(
                                                  username='testuser', password='asdfjkl;', hostname='127.0.0.1',
-                                                 database='cm_flask_blog'
+                                                 database='test_cm_flask_blog'
                                              )
 
 
