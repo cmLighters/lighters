@@ -3,7 +3,9 @@ import os
 from flask import Flask, render_template, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
+from flask_migrate import Migrate
 from flask_moment import Moment
+from flask_mail import Mail, Message
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
@@ -11,14 +13,40 @@ from wtforms.validators import DataRequired
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'Can u guess it.'
+# database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://{username}:{password}@{hostname}/{database}'.format(
     username='testuser', password='asdfjkl;', hostname='127.0.0.1', database='cm_flask_blog'
 )
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
+# mail
+app.config['MAIL_SERVER'] = 'smtp.yeah.net'
+app.config['MAIL_PORT'] = 25
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_SUBJECT_PREFFIX'] = '[cmLighters\' Blog]'
+app.config['MAIL_SENDER'] = 'Blog Admin <mijechen@yeah.net>'
+app.config['MAIL_ADMIN'] = os.environ.get('MAIL_ADMIN')
+
+
+def send_email(to, subject, template, **kwargs):
+    msg = Message(app.config['MAIL_SUBJECT_PREFFIX']+subject, sender=app.config['MAIL_SENDER'], recipients=[to])
+    msg.body = render_template(template+'.txt', **kwargs)
+    msg.html = render_template(template+'.html', **kwargs)
+    mail.send(msg)
+
 
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+mail = Mail(app)
+
+
+@app.shell_context_processor
+def make_shell_context():
+    return dict(app=app, db=db, Role=Role, User=User)
+
 
 class Role(db.Model):
     __tablename__ = 'roles'
@@ -56,6 +84,8 @@ def index():
             user = User(username=name)
             db.session.add(user)
             session['known'] = False
+            if app.config['MAIL_ADMIN']:
+                send_email(app.config['MAIL_ADMIN'], 'New user <%s> register' % name, 'mail/new_user', user=user)
         else:
             session['known'] = True
         session['name'] = name
