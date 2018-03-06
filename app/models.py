@@ -52,6 +52,24 @@ class User(UserMixin, db.Model):
         db.session.add(self)
         return True
 
+    def generate_reset_password_token(self, expiration=3600):
+        s = TimedJSONWebSignatureSerializer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({'reset_password': self.id}).decode('utf-8')
+
+    @staticmethod
+    def reset_password(token, new_password):
+        s = TimedJSONWebSignatureSerializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token.encode('utf-8'))
+        except:
+            return False
+        user = User.query.get(data['reset_password'])
+        if user is None:
+            return False
+        user.password = new_password
+        db.session.add(user)
+        return True
+
     def __repr__(self):
         return '<User %r>' % self.username
 

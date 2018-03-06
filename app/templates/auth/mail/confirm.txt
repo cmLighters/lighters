@@ -10,4 +10,4 @@ Sincerely,
 cmLighters
 
 Note:
-Please do not reply this email.
+    Reply this email will be ignored.
