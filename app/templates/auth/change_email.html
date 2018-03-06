@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+{% block title %} cmLighters' Blog - Update email {% endblock %}
+
+{% block page_content %}
+    <div class="page-header">
+        <h1> Update your email address</h1>
+    </div>
+
+    <div class="col-md-4">
+        {{ wtf.quick_form(form) }}
+    </div>
+{% endblock %}
