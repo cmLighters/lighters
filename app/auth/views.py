@@ -1,7 +1,7 @@
 from . import auth
 from .. import db
 from flask import render_template, request, url_for, redirect, flash, current_app
-from .forms import LoginForm, RegistrationForm
+from .forms import LoginForm, RegistrationForm, ChangePasswordForm
 from ..models import User
 from ..email import send_email
 from flask_login import login_user, logout_user, login_required, current_user
@@ -84,4 +84,20 @@ def confirm(token):
     else:
         flash('The confimation link is expired or invalid.')
     return redirect(url_for('main.index'))
+
+
+@auth.route('/change_password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    form = ChangePasswordForm()
+    if form.validate_on_submit():
+        if not current_user.verify_password(form.old_password.data):
+            flash('Invalid password.')
+        else:
+            current_user.password = form.new_password.data
+            db.session.add(current_user)
+            db.session.commit()
+            flash('Your password has been updated.')
+            return redirect(url_for('main.index'))
+    return render_template('auth/change_password.html', form=form)
 
