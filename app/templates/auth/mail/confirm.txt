@@ -1,0 +1,13 @@
+Dear {{ user.username }},
+
+Welcome to my blog!
+
+To confirm your account please click on the following link:
+
+{{ url_for('auth.confirm', token=token, _external=True) }}
+
+Sincerely,
+cmLighters
+
+Note:
+Please do not reply this email.
