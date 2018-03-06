@@ -2,7 +2,7 @@ import time
 import unittest
 from flask import current_app
 from app import create_app, db
-from app.models import User
+from app.models import User, Role, Permission, AnonymousUser
 
 
 class UserModelTestCase(unittest.TestCase):
@@ -76,4 +76,38 @@ class UserModelTestCase(unittest.TestCase):
         token = u.generate_reset_password_token()
         self.assertFalse(u.reset_password(token+'a', 'dog'))
         self.assertTrue(u.verify_password('cat'))
+
+    def test_user_role(self):
+        u = User(email='john@example.com', password='cat')
+        self.assertTrue(u.can(Permission.FOLLOW))
+        self.assertTrue(u.can(Permission.COMMENT))
+        self.assertTrue(u.can(Permission.WRITE))
+        self.assertFalse(u.can(Permission.MODERATE))
+        self.assertFalse(u.can(Permission.ADMIN))
+
+    def test_moderator_role(self):
+        r = Role.query.filter_by(name='Moderator').first()
+        u = User(email='john@example.com', password='cat', role=r)
+        self.assertTrue(u.can(Permission.FOLLOW))
+        self.assertTrue(u.can(Permission.COMMENT))
+        self.assertTrue(u.can(Permission.WRITE))
+        self.assertTrue(u.can(Permission.MODERATE))
+        self.assertFalse(u.can(Permission.ADMIN))
+
+    def test_administrator_role(self):
+        r = Role.query.filter_by(name='Administrator').first()
+        u = User(email='john@example.com', password='cat', role=r)
+        self.assertTrue(u.can(Permission.FOLLOW))
+        self.assertTrue(u.can(Permission.COMMENT))
+        self.assertTrue(u.can(Permission.WRITE))
+        self.assertTrue(u.can(Permission.MODERATE))
+        self.assertTrue(u.can(Permission.ADMIN))
+
+    def test_anonymous_user(self):
+        u = AnonymousUser()
+        self.assertFalse(u.can(Permission.FOLLOW))
+        self.assertFalse(u.can(Permission.COMMENT))
+        self.assertFalse(u.can(Permission.WRITE))
+        self.assertFalse(u.can(Permission.MODERATE))
+        self.assertFalse(u.can(Permission.ADMIN))
 

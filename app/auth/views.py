@@ -40,7 +40,7 @@ def register():
                     password=form.password.data)
         db.session.add(user)
         db.session.commit()
-        send_email(current_app.config['MAIL_ADMIN'], 'Confirm Your Account',
+        send_email(current_app.config['BLOG_ADMIN'], 'Confirm Your Account',
                    'auth/mail/confirm', user=user, token=user.generate_confirmation_token())
         flash('A confirmation email has been set to your register email.')
         return redirect(url_for('auth.login'))

@@ -12,7 +12,7 @@ class Config(object):
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     MAIL_SUBJECT_PREFFIX = '[cmLighters\' Blog]'
     MAIL_SENDER = 'Blog mail sender <mijechen@yeah.net>'
-    MAIL_ADMIN = os.environ.get('MAIL_ADMIN')
+    BLOG_ADMIN = os.environ.get('BLOG_ADMIN')
 
     @staticmethod
     def init_app(app):
