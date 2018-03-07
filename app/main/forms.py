@@ -38,3 +38,10 @@ class AdminEditProfileForm(FlaskForm):
     def valid_username(self, field):
         if field.data != self.user.username and User.query.filter_by(username=field.data).first():
             raise ValidationError('Username already in use.')
+
+
+class PostForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired(), Length(1, 128)])
+    content = TextAreaField('Content', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
