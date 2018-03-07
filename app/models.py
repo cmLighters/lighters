@@ -1,4 +1,6 @@
 import hashlib
+import bleach
+import markdown
 from . import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import current_app, request
@@ -79,7 +81,7 @@ class User(UserMixin, db.Model):
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
     avatar_hash = db.Column(db.String(32))
-    posts = db.relationship('Post', backref='author', lazy='dynamic')
+    posts = db.relationship('Post', backref='author', lazy='dynamic')     # backref make every post object has it's author object
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -204,3 +206,15 @@ class Post(db.Model):
     content = db.Column(db.Text())
     created_at = db.Column(db.DateTime(), default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    content_html = db.Column(db.Text)
+
+    @staticmethod
+    def on_changed_content(target, value, oldvalue, initiator):
+        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
+                    'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul', 'h1', 'h2', 'h3', 'p']
+        target.content_html = bleach.linkify(bleach.clean(
+            markdown.markdown(value, output_format='html'), tags=allowed_tags, strip=True
+        ))
+
+
+db.event.listen(Post.content, 'set', Post.on_changed_content)

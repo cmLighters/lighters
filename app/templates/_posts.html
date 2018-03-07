@@ -11,7 +11,18 @@
                 <div class="post-author">
                     <a href="{{ url_for('main.user', username=post.author.username) }}">{{ post.author.username }}</a>
                 </div>
-                <div class="post-body">{{ post.content }}</div>
+                <div class="post-body">
+                {% if post.content_html %}
+                    {{ post.content_html | safe }}
+                {% else %}
+                    {{ post.content }}
+                {% endif %}
+                </div>
+                <div class="post-footer">
+                    <a href="{{ url_for('.post', id=post.id) }}">
+                        <span class="label label-default">Permalink</span>
+                    </a>
+                </div>
             </div>
         </li>
     {% endfor %}

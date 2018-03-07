@@ -40,3 +40,7 @@ div.pagination {
     padding: 0px;
     margin: 0px;
 }
+
+div.post-footer {
+    text-align: right;
+}
