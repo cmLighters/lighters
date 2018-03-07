@@ -49,9 +49,13 @@ def register():
 
 @auth.before_app_request
 def please_confirm():
-    if current_user.is_authenticated and not current_user.confirmed and \
-        request.blueprint != 'auth' and request.endpoint != 'static':
-        return redirect(url_for('auth.unconfirmed'))
+    if current_user.is_authenticated:
+        current_user.ping()
+        if not current_user.confirmed \
+                and request.endpoint \
+                and request.blueprint != 'auth' \
+                and request.endpoint != 'static':
+            return redirect(url_for('auth.unconfirmed'))
 
 
 @auth.route('/unconfirmed')
@@ -161,3 +165,4 @@ def change_email(token):
     else:
         flash('Change email link is expired or invalid.')
     return redirect(url_for('main.index'))
+
