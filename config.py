@@ -15,6 +15,7 @@ class Config(object):
     BLOG_ADMIN = os.environ.get('BLOG_ADMIN')
     POSTS_PER_PAGE = 10
     FOLLOWERS_PER_PAGE = 25
+    COMMENTS_PER_PAGE = 15
 
     @staticmethod
     def init_app(app):

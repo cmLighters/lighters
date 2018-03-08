@@ -46,3 +46,7 @@ class PostForm(FlaskForm):
     content = PageDownField('Content', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
+
+class CommentForm(FlaskForm):
+    content = StringField('Comment', validators=[DataRequired()])
+    submit = SubmitField('Submit')

@@ -2,10 +2,10 @@ from flask import session, redirect, url_for, render_template, current_app, flas
 from flask_login import current_user, login_required
 
 from . import main
-from .forms import NameForm, EditProfileForm, AdminEditProfileForm, PostForm
+from .forms import NameForm, EditProfileForm, AdminEditProfileForm, PostForm, CommentForm
 from ..email import send_email
 from .. import db
-from ..models import Role, User, Permission, Post, Follow
+from ..models import Role, User, Permission, Post, Follow, Comment
 from ..decorators import admin_require
 from ..decorators import permission_require
 
@@ -88,10 +88,28 @@ def admin_edit_profile(user_id):
     return render_template('edit_profile.html', form=form, user=user)
 
 
-@main.route('/post/<int:id>')
+@main.route('/post/<int:id>', methods=['GET', 'POST'])
 def post(id):
     post = Post.query.get_or_404(id)
-    return render_template('post.html', posts=[post])
+    form = CommentForm()
+    if form.validate_on_submit():
+        if current_user.is_authenticated and current_user.can(Permission.COMMENT):
+            comment_content = form.content.data
+            comment = Comment(content=comment_content, post=post, author=current_user._get_current_object())
+            db.session.add(comment)
+            db.session.commit()
+            flash('Your comment has been published.')
+            return redirect(url_for('.post', id=id, page=-1))
+        else:
+            abort(403)
+    page = request.args.get('page', 1, type=int)
+    if page == -1:
+        page = (post.comments.count() - 1) // current_app.config['COMMENTS_PER_PAGE'] + 1
+    pagination = post.comments.order_by(Comment.created_at.asc()).paginate(
+        page, per_page=current_app.config['COMMENTS_PER_PAGE'], error_out=False
+    )
+    comments = pagination.items
+    return render_template('post.html', posts=[post], comments=comments, pagination=pagination, form=form)
 
 
 @main.route('/edit_post/<int:id>', methods=['GET', 'POST'])
@@ -194,3 +212,5 @@ def show_followed():
     response = make_response(redirect(url_for('.index')))
     response.set_cookie('show_followed', '1', max_age=30*24*60*60)
     return response
+
+

@@ -102,6 +102,8 @@ class User(UserMixin, db.Model):
                                 lazy='dynamic',
                                 cascade='all, delete-orphan')
 
+    comments = db.relationship('Comment', backref='author', lazy='dynamic')
+
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
         if self.role is None:
@@ -247,6 +249,8 @@ class Post(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     content_html = db.Column(db.Text)
 
+    comments = db.relationship('Comment', backref='post', lazy='dynamic')
+
     @staticmethod
     def on_changed_content(target, value, oldvalue, initiator):
         allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
@@ -256,6 +260,26 @@ class Post(db.Model):
         ))
 
 
+class Comment(db.Model):
+    __tablename__ = 'comments'
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text())
+    content_html = db.Column(db.Text())
+    created_at = db.Column(db.DateTime(), default=datetime.utcnow)
+    disabled = db.Column(db.Boolean)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
+
+    @staticmethod
+    def on_changed_content(target, value, oldvalue, initiator):
+        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'code',
+                        'em', 'i', 'strong']
+        target.content_html = bleach.linkify(bleach.clean(
+            markdown.markdown(value, output_format='html'), tags=allowed_tags, strip=True
+        ))
+
+
 db.event.listen(Post.content, 'set', Post.on_changed_content)
+db.event.listen(Comment.content, 'set', Comment.on_changed_content)
 
 
