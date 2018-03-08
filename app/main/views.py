@@ -214,3 +214,35 @@ def show_followed():
     return response
 
 
+@main.route('/moderate')
+@login_required
+@permission_require(Permission.MODERATE)
+def moderate_comments():
+    page = request.args.get('page', 1, type=int)
+    pagination = Comment.query.order_by(Comment.created_at.desc()).paginate(
+        page, per_page=current_app.config['COMMENTS_PER_PAGE'], error_out=False
+    )
+    comments = pagination.items
+    return render_template('moderate.html', comments=comments, pagination=pagination, page=page)
+
+
+@main.route('/moderate/enable/<int:id>')
+@login_required
+@permission_require(Permission.MODERATE)
+def moderate_enable(id):
+    comment = Comment.query.get(id)
+    comment.disabled = False
+    db.session.add(comment)
+    db.session.commit()
+    return redirect(url_for('.moderate_comments', page=request.args.get('page', 1, type=int)))
+
+
+@main.route('/moderate/disable/<int:id>')
+@login_required
+@permission_require(Permission.MODERATE)
+def moderate_disable(id):
+    comment = Comment.query.get(id)
+    comment.disabled = True
+    db.session.add(comment)
+    db.session.commit()
+    return redirect(url_for('.moderate_comments', page=request.args.get('page', 1, type=int)))
