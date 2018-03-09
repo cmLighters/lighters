@@ -2,8 +2,9 @@ import hashlib
 import bleach
 import markdown
 from . import db
+from .exceptions import ValidationError
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask import current_app, request
+from flask import current_app, request, url_for
 from flask_login import UserMixin, AnonymousUserMixin
 from . import login_manager
 from itsdangerous import TimedJSONWebSignatureSerializer
@@ -220,6 +221,31 @@ class User(UserMixin, db.Model):
     def followed_posts(self):
         return Post.query.join(Follow, Follow.followed_id==Post.author_id).filter(Follow.follower_id==self.id)
 
+    def generate_auth_token(self, expiration=3600):
+        s = TimedJSONWebSignatureSerializer(current_app.config['SECRET_KEY'], expires_in=expiration)
+        return s.dumps(dict(id=self.id)).decode('utf-8')
+
+    def to_json(self):
+        json_user = {
+                    'url': url_for('api.get_user', id=self.id),
+                    'username': self.username,
+                    'member_since': self.member_since,
+                    'last_seen': self.last_seen,
+                    'posts_url': url_for('api.get_user_posts', id=self.id),
+                    'followed_posts_url': url_for('api.get_user_followed_posts', id=self.id),
+                    'post_count': self.posts.count()
+        }
+        return json_user
+
+    @staticmethod
+    def verify_auth_token(token):
+        s = TimedJSONWebSignatureSerializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token.encode('utf-8'))
+        except:
+            return None
+        return User.query.get(data['id'])
+
     def __repr__(self):
         return '<User %r>' % self.username
 
@@ -259,6 +285,26 @@ class Post(db.Model):
             markdown.markdown(value, output_format='html'), tags=allowed_tags, strip=True
         ))
 
+    def to_json(self):
+        json_post = {
+            'url': url_for('api.get_post', id=self.id),
+            'body': self.content,
+            'body_html': self.content_html,
+            'created_at': self.created_at,
+            'author_url': url_for('api.get_user', id=self.author_id),
+            'comments_url': url_for('api.get_post_comments', id=self.id),
+            'comment_count': self.comments.count()
+        }
+        return json_post
+
+    @staticmethod
+    def from_json(json_post):
+        content = json_post.get('content')
+        if content is None or content == '':
+            raise ValidationError('post does not have a body')
+        return Post(content=content)
+
+
 
 class Comment(db.Model):
     __tablename__ = 'comments'
@@ -277,6 +323,24 @@ class Comment(db.Model):
         target.content_html = bleach.linkify(bleach.clean(
             markdown.markdown(value, output_format='html'), tags=allowed_tags, strip=True
         ))
+
+    def to_json(self):
+        json_comment = {
+            'url': url_for('api.get_comment', id=self.id),
+            'post_url': url_for('api.get_post', id=self.post_id),
+            'content': self.content,
+            'content_html': self.content_html,
+            'created_at': self.created_at,
+            'author_url': url_for('api.get_user', id=self.author_id),
+        }
+        return json_comment
+
+    @staticmethod
+    def from_json(json_comment):
+        body = json_comment.get('body')
+        if body is None or body == '':
+            raise ValidationError('comment does not have a body')
+        return Comment(body=body)
 
 
 db.event.listen(Post.content, 'set', Post.on_changed_content)

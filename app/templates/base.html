@@ -40,7 +40,7 @@
                             </a>
                             <ul class="dropdown-menu">
                                 {% if current_user.can(Permission.MODERATE) %}
-                                <li><a href="{{ url_for('.moderate_comments') }}">Moderate Comment</a></li>
+                                <li><a href="{{ url_for('main.moderate_comments') }}">Moderate Comment</a></li>
                                 {% endif %}
                                 <li><a href="{{ url_for('auth.change_password') }}">Change Password</a></li>
                                 <li><a href="{{ url_for('auth.change_email_request') }}">Change Email</a></li>
