@@ -16,6 +16,13 @@ class Config(object):
     POSTS_PER_PAGE = 10
     FOLLOWERS_PER_PAGE = 25
     COMMENTS_PER_PAGE = 15
+    
+    MSEARCH_INDEX_NAME = 'whoosh_index'
+    # simple,whoosh
+    MSEARCH_BACKEND = 'whoosh'
+    # auto create or update index
+    MSEARCH_ENABLE = True
+    #WHOOSH_BASE = os.path.join(os.path.split(os.path.abspath(__file__))[0], 'search.db')
 
     @staticmethod
     def init_app(app):

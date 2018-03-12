@@ -267,6 +267,7 @@ def load_user(user_id):
 
 
 class Post(db.Model):
+    __searchable__ = ['content']
     __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128))
@@ -303,7 +304,6 @@ class Post(db.Model):
         if content is None or content == '':
             raise ValidationError('post does not have a body')
         return Post(content=content)
-
 
 
 class Comment(db.Model):
