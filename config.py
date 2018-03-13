@@ -6,8 +6,8 @@ class Config(object):
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAIL_SERVER = 'smtp.yeah.net'
-    MAIL_PORT = 25
-    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'true').lower() in ['true', 'on', 1]
+    MAIL_PORT = 465
+    MAIL_USE_SSL = os.environ.get('MAIL_USE_TLS', 'true').lower() in ['true', 'on', 1]
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     MAIL_SUBJECT_PREFFIX = '[cmLighters\' Blog]'
@@ -16,7 +16,7 @@ class Config(object):
     POSTS_PER_PAGE = 10
     FOLLOWERS_PER_PAGE = 25
     COMMENTS_PER_PAGE = 15
-    
+
     MSEARCH_INDEX_NAME = 'whoosh_index'
     # simple,whoosh
     MSEARCH_BACKEND = 'whoosh'
@@ -48,6 +48,8 @@ class TestingConfig(Config):
 
 
 class ProductionConfig(Config):
+    MAIL_PORT = 465
+    MAIL_USE_SSL = 1
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URI')
 
 

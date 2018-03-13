@@ -112,6 +112,21 @@ def post(id):
     return render_template('post.html', posts=[post], comments=comments, pagination=pagination, form=form)
 
 
+@main.route('/edit_post', methods=['GET', 'POST'])
+@login_required
+@permission_require(Permission.WRITE)
+def new_post():
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Post(title=form.title.data, content=form.content.data,
+                    author=current_user)
+        db.session.add(post)
+        db.session.commit()
+        flash('New post has been committed.')
+        return redirect(url_for('.post', id=post.id))
+    return render_template('edit_post.html', form=form)
+
+
 @main.route('/edit_post/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_post(id):
