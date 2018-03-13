@@ -1,3 +1,5 @@
+# -*- coding: utf8 -*-
+
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField, SelectField
 from wtforms.validators import DataRequired, Length, Email, ValidationError
@@ -11,21 +13,21 @@ class NameForm(FlaskForm):
 
 
 class EditProfileForm(FlaskForm):
-    name = StringField('Real name', validators=[Length(0, 64)])
-    location = StringField('Location', validators=[Length(0, 64)])
-    about_me = TextAreaField('About me')
-    submit = SubmitField('Submit')
+    name = StringField('您的姓名', validators=[Length(0, 64)])
+    location = StringField('您的住址', validators=[Length(0, 64)])
+    about_me = TextAreaField('个人介绍')
+    submit = SubmitField('提交')
 
 
 class AdminEditProfileForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired(), Length(1, 64), Email()])
-    username = StringField('Username', validators=[DataRequired(), Length(1, 64)])
-    confirmed = BooleanField('Confirmed')
-    role = SelectField('Role', coerce=int)
-    name = StringField('Real name', validators=[Length(0, 64)])
-    location = StringField('Location', validators=[Length(0, 64)])
-    about_me = TextAreaField('About me')
-    submit = SubmitField('Submit')
+    email = StringField('邮箱', validators=[DataRequired(), Length(1, 64), Email()])
+    username = StringField('用户名', validators=[DataRequired(), Length(1, 64)])
+    confirmed = BooleanField('账户已确认？')
+    role = SelectField('用户等级', coerce=int)
+    name = StringField('姓名', validators=[Length(0, 64)])
+    location = StringField('地址', validators=[Length(0, 64)])
+    about_me = TextAreaField('个人介绍')
+    submit = SubmitField('提交')
 
     def __init__(self, user, *args, **kwargs):
         super(AdminEditProfileForm, self).__init__(*args, **kwargs)
@@ -34,19 +36,19 @@ class AdminEditProfileForm(FlaskForm):
 
     def valid_email(self, field):
         if field.data != self.user.email and User.query.filter_by(email=field.data).first():
-            raise ValidationError('Email already registered.')
+            raise ValidationError('邮箱已被注册')
 
     def valid_username(self, field):
         if field.data != self.user.username and User.query.filter_by(username=field.data).first():
-            raise ValidationError('Username already in use.')
+            raise ValidationError('用户名已被占用')
 
 
 class PostForm(FlaskForm):
-    title = StringField('Title', validators=[DataRequired(), Length(1, 128)])
-    content = PageDownField('Content', validators=[DataRequired()])
-    submit = SubmitField('Submit')
+    title = StringField('请输入文章标题', validators=[DataRequired(), Length(1, 128)])
+    content = PageDownField('请输入文章内容', validators=[DataRequired()])
+    submit = SubmitField('提交')
 
 
 class CommentForm(FlaskForm):
-    content = StringField('Input your comment', validators=[DataRequired()])
-    submit = SubmitField('Submit')
+    content = StringField('在此输入您的评论', validators=[DataRequired()])
+    submit = SubmitField('提交')
