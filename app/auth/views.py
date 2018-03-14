@@ -2,12 +2,18 @@
 
 from . import auth
 from .. import db
-from flask import render_template, request, url_for, redirect, flash, current_app
+from flask import render_template, request, url_for, redirect, flash, current_app, g
 from .forms import LoginForm, RegistrationForm, ChangePasswordForm, \
     ResetPasswordRequestForm, ResetPasswordForm, ChangeEmailForm
 from ..models import User
 from ..email import send_email
 from flask_login import login_user, logout_user, login_required, current_user
+import os
+import time
+from datetime import timedelta
+import requests
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+
 import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -171,3 +177,64 @@ def change_email(token):
         flash('更新邮箱链接无效或已过期')
     return redirect(url_for('main.index'))
 
+
+@auth.route('/oauth/github')
+def oauth_github():
+    #print request.args
+    client_id = os.environ.get('github_client_id')
+    client_secret = os.environ.get('github_client_secret')
+    if 'code' in request.args:   # 4.
+        access_token_request_url = 'https://github.com/login/oauth/access_token'
+        params = dict(client_id=client_id,
+                      client_secret=client_secret,
+                      code=request.args.get('code', ''),
+                      redirect_uri = url_for('auth.oauth_github', _external=True)
+                      )
+        #print params
+        headers = dict(Accept='application/json')
+        resp = requests.post(access_token_request_url, params=params, headers=headers)
+        #print resp.json(), type(resp.json())
+
+        access_token = resp.json()['access_token']
+        api_request_url = 'https://api.github.com/user'
+        headers = dict(Authorization='token %s' % access_token)
+        resp = requests.get(api_request_url, headers=headers)
+        #print resp.json()    # dict
+        #print resp.content       # api request success
+        user_json = resp.json()
+        #print user_json
+        if current_user.is_authenticated:
+            current_user.github_username = user_json['login']
+            current_user.github_avatar_url = user_json['avatar_url']
+            db.session.add(current_user)
+        else:
+            user = User.query.filter_by(github_username=user_json['login']).first()
+            if user is not None:
+                if user.username == '' or user.username is None:
+                    user.username = user.github_username
+                    db.session.add(user)
+                    db.session.commit()
+            else:
+                user = User(github_username=user_json['login'], github_avatar_url=user_json['avatar_url'], confirmed=True)
+                user.username = user.github_username
+                db.session.add(user)
+                db.session.commit()
+            login_user(user, remember=True, duration=timedelta(seconds=30))
+
+        # user = User(github_username=user_json['login'], github_avatar_url=user_json['avatar_url'], confirmed=True)
+        # g.oauth_github = True
+        #exist_user = User.query.filter_by(username= user.github_username).first()
+        #if exist_user is None:
+        #    user.username = user.github_username
+        #if user.username is None:
+         #   user.username = user.github_username
+        #s = Serializer(secret_key=current_app.config['SECRET_KEY'], salt='OAuth Github', expires_in=36*30*24*24)
+        #s.dumps(github_username=user.github_username, last_login_time=time.time())
+        #db.session.add(user)
+        #db.session.commit()
+        return redirect(url_for('main.index'))
+    else:    # 3.
+        url = "https://github.com/login/oauth/authorize?" \
+              "client_id={client_id}&client_secret={client_secret}&redirect_uri={redirect_uri}".format(
+                    client_id = client_id, client_secret=client_secret, redirect_uri=url_for('auth.oauth_github', _external=True))
+        return redirect(url)

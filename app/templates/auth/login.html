@@ -10,6 +10,7 @@
 
         <div class="col-md-4">
             {{ wtf.quick_form(form) }}
+            <p> Or login with <a class="btn btn-primary" href="{{ url_for('auth.oauth_github') }}">Github</a>?</p>
             <br>
             <div> Forget your password? <a href="{{ url_for('auth.reset_password_request') }}">Click here to reset password.</a></div>
             <div> New user? <a href="{{ url_for('auth.register') }}">Click here to register</a>.</div>

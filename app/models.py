@@ -105,6 +105,9 @@ class User(UserMixin, db.Model):
 
     comments = db.relationship('Comment', backref='author', lazy='dynamic')
 
+    github_username = db.Column(db.String(64), unique=True, index=True)
+    github_avatar_url = db.Column(db.String(128))
+
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
         if self.role is None:
@@ -192,6 +195,10 @@ class User(UserMixin, db.Model):
         return hashlib.md5(self.email.encode('utf-8')).hexdigest()
 
     def gravatar(self, size=100, default='identicon', rating='g'):
+        if self.github_avatar_url:
+            return '{url}?s={size}&d={default}&r={rating}'.format(
+                        url=self.github_avatar_url.split('?')[0],
+                        size = size, default = default, rating = rating)
         if request.is_secure:
             url = 'https://secure.gravatar.com/avatar'
         else:
