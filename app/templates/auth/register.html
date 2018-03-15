@@ -3,12 +3,42 @@
 
 {% block title %} cmLighters' Blog - Register {% endblock %}
 
+{% block head %}
+        {{ super() }}
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+{% endblock %}
+
+#{% block navbar %} {% endblock %}
+
 {% block page_content %}
-    <div class="page-header">
-        <h1>Register</h1>
+    <div class="register-header-logo">
+        <a href="{{ url_for('main.index') }}"><img src="{{ url_for('static', filename='images/logo_pic.jpg') }}"></a>
+    </div>
+    <div class="register-container">
+        <div class="page-header">
+            <h1>注册</h1>
+        </div>
+
+        <div class="register-box">
+            <div class="account-register">
+                {{ wtf.quick_form(form) }}
+{#                <p> Or login with <a class="btn btn-primary" href="{{ url_for('auth.oauth_github') }}">Github</a>?</p>#}
+{#                <div> <a class="login-forget-password" href="{{ url_for('auth.reset_password_request') }}">忘记密码？</a></div>#}
+{#                <div> New user? <a href="{{ url_for('auth.register') }}">Click here to register</a>.</div>#}
+            </div>
+            <div class="oauth-login">
+                <p>已经注册过？</p>
+                <p class="login-direct"><a href="{{ url_for('auth.login') }}">直接登录 →</a></p>
+                <p>使用第三方账号直接登录</p>
+                <a class="oauth-github-btn" href="{{ url_for('auth.oauth_github') }}">
+                    <svg class="icon" aria-hidden="true">
+                        <use xlink:href="#icon-github"></use>
+                    </svg>
+                    Github登录
+                </a>
+            </div>
+
+        </div>
     </div>
 
-    <div class="col-md-4">
-        {{ wtf.quick_form(form) }}
-    </div>
 {% endblock %}

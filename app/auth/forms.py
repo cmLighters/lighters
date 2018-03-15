@@ -7,19 +7,24 @@ from ..models import User
 
 
 class LoginForm(FlaskForm):
-    email = StringField('邮箱', validators=[Email('电子邮箱格式错误'), DataRequired(), Length(1, 64)])
-    password = PasswordField('密码', validators=[DataRequired()])
-    remember_me = BooleanField('记住我')
+    email = StringField('', validators=[Email('电子邮箱格式错误'), DataRequired(), Length(1, 64)],
+                        render_kw={'placeholder':'邮箱'})
+    password = PasswordField('', validators=[DataRequired()], render_kw={'placeholder': '密码'})
+    remember_me = BooleanField('记住密码')
     submit = SubmitField('登录')
 
 
 class RegistrationForm(FlaskForm):
-    email = StringField('邮箱', validators=[Email('电子邮箱格式错误'), DataRequired(), Length(1, 64)])
-    username = StringField('昵称', validators=[DataRequired(), Length(1, 64),
-                    Regexp('^[_a-zA-Z][_0-9a-zA-Z\.]*$', 0, '昵称只能由字母，下划线，英文点号和数字构成')])
-    password = PasswordField('密码', validators=[
-                    DataRequired(), EqualTo('password2', message='密码必须一致')])
-    password2 = PasswordField('确认密码', validators=[DataRequired()])
+    email = StringField('', validators=[Email('电子邮箱格式错误'), DataRequired(), Length(1, 64)],
+                        render_kw={'placeholder': '请输入注册邮箱'})
+    username = StringField('', validators=[DataRequired(), Length(2, 20),
+                    Regexp('^[_a-zA-Z][_0-9a-zA-Z\.]*$', 0, '昵称只能由字母，下划线，英文点号和数字构成')],
+                        render_kw={'placeholder': '请输入昵称，2到20个字符'})
+    password = PasswordField('', validators=[
+                    DataRequired(), EqualTo('password2', message='密码必须一致')],
+                        render_kw={'placeholder': '请输入密码'})
+    password2 = PasswordField('', validators=[DataRequired()],
+                        render_kw={'placeholder': '请再次输入密码'})
     submit = SubmitField('注册')
 
     def validate_email(self, field):

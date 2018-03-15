@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block page_content %}
+<article class="api-table-list" style="max-width:700px;margin:auto;">
+<div class="table-responsive">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>用户 API说明</th>
+                <th>HTTP方法</th>
+                <th>接口链接</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>查询用户id 为&lt;user_id&gt;的信息</td>
+                <td>GET</td>
+                <td>/api/v1/users/&lt;user_id&gt;</td>
+            </tr>
+            <tr>
+                <td>查询用户id 为&lt;user_id&gt;的所有文章信息</td>
+                <td>GET</td>
+                <td>/api/v1/users/&lt;user_id&gt;/posts</td>
+            </tr>
+            <tr>
+                <td>查询被用户id 为&lt;user_id&gt;的用户最新文章信息</td>
+                <td>GET</td>
+                <td>/api/v1/users/&lt;user_id&gt;/timeline</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="table-responsive">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>文章 API说明</th>
+                <th>HTTP方法</th>
+                <th>接口链接</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>获取所有已发布文章</td>
+                <td>GET</td>
+                <td>/api/v1/posts/</td>
+            </tr>
+            <tr>
+                <td>查询文章id 为&lt;post_id&gt;的所有文章信息</td>
+                <td>GET</td>
+                <td>/api/v1/posts/&lt;post_id&gt;</td>
+            </tr>
+            <tr>
+                <td>提交新文章</td>
+                <td>POST</td>
+                <td>/api/v1/posts/</td>
+            </tr>
+            <tr>
+                <td>编辑文章 id 为&lt;post_id&gt;的内容</td>
+                <td>PUT</td>
+                <td>/api/v1/posts/&lt;post_id&gt;</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+    <div class="table-responsive">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>评论 API说明</th>
+                <th>HTTP方法</th>
+                <th>接口链接</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>查询所有评论</td>
+                <td>GET</td>
+                <td>/api/v1/comments/</td>
+            </tr>
+            <tr>
+                <td>查询评论id 为&lt;comment_id&gt;的详细信息</td>
+                <td>GET</td>
+                <td>/api/v1/comments/&lt;user_id&gt;</td>
+            </tr>
+            <tr>
+                <td>查询文章 id 为&lt;post_id&gt;的所有评论信息</td>
+                <td>GET</td>
+                <td>/api/v1/posts/&lt;post_id&gt;/comments/</td>
+            </tr>
+            <tr>
+                <td>为文章 id 为&lt;post_id&gt;的文章提交新的评论</td>
+                <td>POST</td>
+                <td>/api/v1/posts/&lt;post_id&gt;/comments/</td>
+            </tr>
+        </tbody>
+    </table>
+    </div>
+</article>
+{% endblock %}

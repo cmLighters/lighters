@@ -263,3 +263,9 @@ def moderate_disable(id):
     db.session.add(comment)
     db.session.commit()
     return redirect(url_for('.moderate_comments', page=request.args.get('page', 1, type=int)))
+
+
+@main.route('/apis')
+@login_required
+def get_apis():
+    return render_template('api.html')
