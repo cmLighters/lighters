@@ -1,0 +1,22 @@
+{% import '_macros.html' as macros %}
+
+{#    <div class="page-header">#}
+{#        <h1> Hello, {% if current_user.is_authenticated %} {{ current_user.username }} {% else %} Stranger {% endif %}! </h1>#}
+{#    </div>#}
+
+<h1 style="border-bottom: 1px solid #aaa; padding-bottom:10px;margin-bottom:35px;"> 为您找到{{ results_number }}篇文章</h1>
+
+    <div class="post-tabs">
+        {% include '_posts.html' %}
+    </div>
+    {% if pagination %}
+    <div class="pagination">
+        {{ macros.pagination_widget(pagination, '.index') }}
+    </div>
+    {% endif %}
+
+{#
+{% block scripts %}
+    {{ super() }}
+    {{ pagedown.include_pagedown() }}
+{% endblock %}#}

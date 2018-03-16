@@ -50,6 +50,17 @@
                 <ul class="nav navbar-nav navbar-right">
                     <li><a href="{{ url_for('main.new_post') }} " class="navbar-write-btn"> 写文章 </a></li>
                     <li>
+                        <div class="navbar-search-div div-inactive">
+                            <input id="navbar-keyword-search-input" class="input-inactive"
+                                   placeholder="搜索文章" onkeydown="return checkEnterkeyForSearchInput(event)">
+                            <span class="navbar-search-btn">
+                                <svg class="icon" aria-hidden="true">
+                                    <use xlink:href="#icon-search"></use>
+                                </svg>
+                            </span>
+                        </div>
+                    </li>
+                    <li>
                         <a href="{{ url_for('main.get_apis') }} " class="navbar-api-btn">
                             <svg class="icon" aria-hidden="true">
                                 <use xlink:href="#icon-api1"></use>
@@ -67,8 +78,10 @@
                                 {% if current_user.can(Permission.MODERATE) %}
                                 <li><a href="{{ url_for('main.moderate_comments') }}">管理评论</a></li>
                                 {% endif %}
+                                {% if not session['oauth_github_login'] %}
                                 <li><a href="{{ url_for('auth.change_password') }}">修改密码</a></li>
                                 <li><a href="{{ url_for('auth.change_email_request') }}">修改邮箱</a></li>
+                                {% endif %}
                                 <li><a href="{{ url_for('auth.logout') }}">登出</a></li>
                             </ul>
                         </li>
@@ -102,7 +115,7 @@
         {{ super() }}
         {{ moment.include_moment() }}
         {{ pagedown.include_pagedown() }}
-        <script src="//at.alicdn.com/t/font_590327_2y5ycqxm4ww2ke29.js"></script>
+        <script src="//at.alicdn.com/t/font_590327_clexk0jqn96647vi.js"></script>
         <script src="{{ url_for('static', filename='js/main.js') }}"></script>
         <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
         <script >hljs.initHighlightingOnLoad();</script>

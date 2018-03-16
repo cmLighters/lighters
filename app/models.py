@@ -9,7 +9,7 @@ from flask_login import UserMixin, AnonymousUserMixin
 from . import login_manager
 from itsdangerous import TimedJSONWebSignatureSerializer
 from datetime import datetime
-
+from jieba.analyse import ChineseAnalyzer
 
 class Follow(db.Model):
     __tablename__ = 'follows'
@@ -275,6 +275,7 @@ def load_user(user_id):
 
 class Post(db.Model):
     __searchable__ = ['content']
+    __analyzer__ = ChineseAnalyzer()
     __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128))

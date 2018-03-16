@@ -2,7 +2,7 @@
 
 from . import auth
 from .. import db
-from flask import render_template, request, url_for, redirect, flash, current_app, g
+from flask import render_template, request, url_for, redirect, flash, current_app, g, session
 from .forms import LoginForm, RegistrationForm, ChangePasswordForm, \
     ResetPasswordRequestForm, ResetPasswordForm, ChangeEmailForm
 from ..models import User
@@ -27,6 +27,7 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user is not None and user.verify_password(form.password.data):
             login_user(user, form.remember_me.data)
+            session['oauth_github_login'] = False
             next = request.args.get('next')
             if next is None or not next.startswith('/'):
                 next = url_for('main.index')
@@ -38,6 +39,8 @@ def login():
 @auth.route('/logout')
 @login_required
 def logout():
+    if session['oauth_github_login'] is True:
+        session['oauth_github_login'] = False
     logout_user()
     flash('您已退出账户')
     return redirect(url_for('main.index'))
@@ -178,6 +181,7 @@ def change_email(token):
     return redirect(url_for('main.index'))
 
 
+
 @auth.route('/oauth/github')
 def oauth_github():
     #print request.args
@@ -220,6 +224,7 @@ def oauth_github():
                 db.session.add(user)
                 db.session.commit()
             login_user(user, remember=True, duration=timedelta(seconds=30))
+            session['oauth_github_login'] = True
 
         # user = User(github_username=user_json['login'], github_avatar_url=user_json['avatar_url'], confirmed=True)
         # g.oauth_github = True

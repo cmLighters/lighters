@@ -10,6 +10,7 @@ from .. import db
 from ..models import Role, User, Permission, Post, Follow, Comment
 from ..decorators import admin_require
 from ..decorators import permission_require
+import flask_whooshalchemyplus
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -124,6 +125,8 @@ def new_post():
                     author=current_user)
         db.session.add(post)
         db.session.commit()
+        #with app.app_context():
+        flask_whooshalchemyplus.index_one_model(Post)
         flash('新的文章已提交')
         return redirect(url_for('.post', id=post.id))
     return render_template('edit_post.html', form=form)
@@ -269,3 +272,21 @@ def moderate_disable(id):
 @login_required
 def get_apis():
     return render_template('api.html')
+
+
+# jQuery ajax part load method to frontend
+@main.route("/search")
+def keyword_search():
+    keyword = request.args.get('q')
+    print keyword
+    results = Post.query.whoosh_search(keyword,fields=['content'],limit=20).all()
+    print results
+    # or
+    #results = Post.query.filter(...).msearch(keyword,fields=['title'],limit=20).filter(...)
+    page = request.args.get('page', 1, type=int)
+    pagination = Post.query.whoosh_search(keyword,fields=['content']).order_by(Post.created_at.desc()).paginate(
+        page, per_page=current_app.config['SEARCH_RESULT_PER_PAGE'], error_out=False
+    )
+    posts = pagination.items
+    return render_template('search.html', posts=posts,  results_number=len(results), show_followed=show_followed, pagination=pagination)
+

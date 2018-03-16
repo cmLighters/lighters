@@ -1,6 +1,6 @@
 import os
 from flask_migrate import Migrate
-from app import create_app, db, search
+from app import create_app, db
 from app.models import Role, User, Permission, Post, Follow, Comment
 from config import config
 
@@ -10,7 +10,7 @@ migrate = Migrate(app, db)
 
 @app.shell_context_processor
 def make_shell_context():
-    return dict(app=app, db=db, config=config[config_env], search=search, Role=Role, User=User,
+    return dict(app=app, db=db, config=config[config_env], Role=Role, User=User,
                 Permission=Permission, Post=Post, Follow=Follow, Comment=Comment)
 
 
