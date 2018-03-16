@@ -21,10 +21,8 @@
         <div class="login-box">
             <div class="account-login">
                 {{ wtf.quick_form(form) }}
-{#                <p> Or login with <a class="btn btn-primary" href="{{ url_for('auth.oauth_github') }}">Github</a>?</p>#}
                 <br>
                 <div> <a class="login-forget-password" href="{{ url_for('auth.reset_password_request') }}">忘记密码？</a></div>
-{#                <div> New user? <a href="{{ url_for('auth.register') }}">Click here to register</a>.</div>#}
             </div>
             <div class="oauth-login">
                 <p>没有账号？</p>

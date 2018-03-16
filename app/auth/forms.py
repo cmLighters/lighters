@@ -37,30 +37,34 @@ class RegistrationForm(FlaskForm):
 
 
 class ChangePasswordForm(FlaskForm):
-    old_password = PasswordField('旧的密码', validators=[DataRequired()])
-    new_password = PasswordField('新的密码', validators=[DataRequired(),
-                                                             EqualTo('new_password2', message='新的密码必须一致')])
-    new_password2 = PasswordField('再次输入新密码', validators=[DataRequired()])
+    old_password = PasswordField('', validators=[DataRequired()], render_kw={'placeholder': '旧的登录密码'})
+    new_password = PasswordField('', validators=[DataRequired(),EqualTo('new_password2', message='新的密码必须一致')],
+                                 render_kw={'placeholder': '新密码'})
+    new_password2 = PasswordField('', validators=[DataRequired()], render_kw={'placeholder': '请再次输入新密码'})
     submit = SubmitField('修改密码')
 
 
 class ResetPasswordRequestForm(FlaskForm):
-    email = StringField('请输入您的注册邮箱', validators=[Email('电子邮箱格式错误'), DataRequired(), Length(1, 64)])
+    email = StringField('', validators=[Email('电子邮箱格式错误'), DataRequired(), Length(1, 64)],
+                        render_kw={'placeholder': '请输入注册时使用的邮箱地址'})
     submit = SubmitField('重置密码')
 
 
 class ResetPasswordForm(FlaskForm):
-    new_password = PasswordField('新的密码', validators=[DataRequired(),
-                                                             EqualTo('new_password2', message='密码必须一致')])
-    new_password2 = PasswordField('请再次输入新的密码', validators=[DataRequired()])
+    new_password = PasswordField('', validators=[DataRequired(), EqualTo('new_password2', message='密码必须一致')],
+                                render_kw={'placeholder': '请输入新的登录密码'})
+    new_password2 = PasswordField('', validators=[DataRequired()],
+                                render_kw={'placeholder': '请再次输入新的登录密码'})
     submit = SubmitField('重置密码')
 
 
 class ChangeEmailForm(FlaskForm):
-    email = StringField('新的邮箱', validators=[Email('电子邮箱格式错误'), DataRequired(), Length(1, 64)])
-    password = PasswordField('登录密码', validators=[DataRequired()])
+    password = PasswordField('', validators=[DataRequired()],
+                                render_kw={'placeholder': '请输入现在邮箱的登录密码'})
+    email = StringField('', validators=[Email('电子邮箱格式错误'), DataRequired(), Length(1, 64)],
+                                render_kw={'placeholder': '请输入要修改的新的邮箱'})
     submit = SubmitField('修改邮箱')
 
-    def valid_email(self, field):
+    def validate_email(self, field):
         if User.query.filter_by(email=field.data).first():
             raise ValidationError('邮箱已被注册')

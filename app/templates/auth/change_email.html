@@ -1,13 +1,24 @@
 {% extends 'base.html' %}
 {% import 'bootstrap/wtf.html' as wtf %}
-{% block title %} cmLighters' Blog - Update email {% endblock %}
+{% block title %} cmLighters' Blog - Login {% endblock %}
+
+{% block head %}
+        {{ super() }}
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/change_email.css') }}">
+{% endblock %}
+
 
 {% block page_content %}
-    <div class="page-header">
-        <h1> Update your email address</h1>
+    <div class="change-email-container">
+        <div class="page-header">
+            <h1>修改登录邮箱</h1>
+        </div>
+
+        <div class="change-email-box">
+            <div class="account-change-email">
+                {{ wtf.quick_form(form) }}
+            </div>
+        </div>
     </div>
 
-    <div class="col-md-4">
-        {{ wtf.quick_form(form) }}
-    </div>
 {% endblock %}
