@@ -1,5 +1,5 @@
 {% extends "bootstrap/base.html" %}
-    {% block title %} cmLighters' Blog {% endblock %}
+    {% block title %} Lighters {% endblock %}
 
     {% block head %}
         {{ super() }}
@@ -48,6 +48,9 @@
                 </ul>
 
                 <ul class="nav navbar-nav navbar-right">
+                    {% if post_commit_button %}
+                    <li><a class="navbar-post-commit-btn"> 保存 </a></li>
+                    {% endif %}
                     <li><a href="{{ url_for('main.new_post') }} " class="navbar-write-btn"> 写文章 </a></li>
                     <li>
                         <div class="navbar-search-div div-inactive">

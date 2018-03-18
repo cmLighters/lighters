@@ -208,23 +208,25 @@ def oauth_github():
         user_json = resp.json()
         #print user_json
         if current_user.is_authenticated:
-            current_user.github_username = user_json['login']
-            current_user.github_avatar_url = user_json['avatar_url']
-            db.session.add(current_user)
-        else:
-            user = User.query.filter_by(github_username=user_json['login']).first()
-            if user is not None:
-                if user.username == '' or user.username is None:
-                    user.username = user.github_username
-                    db.session.add(user)
-                    db.session.commit()
-            else:
-                user = User(github_username=user_json['login'], github_avatar_url=user_json['avatar_url'], confirmed=True)
+            #print current_user.__dict__
+            logout_user()
+            #current_user.github_username = user_json['login']
+            #current_user.github_avatar_url = user_json['avatar_url']
+            #db.session.add(current_user)
+
+        user = User.query.filter_by(github_username=user_json['login']).first()
+        if user is not None:
+            if user.username == '' or user.username is None:
                 user.username = user.github_username
                 db.session.add(user)
                 db.session.commit()
-            login_user(user, remember=True, duration=timedelta(seconds=30))
-            session['oauth_github_login'] = True
+        else:
+            user = User(github_username=user_json['login'], github_avatar_url=user_json['avatar_url'], confirmed=True)
+            user.username = user.github_username
+            db.session.add(user)
+            db.session.commit()
+        login_user(user, remember=True, duration=timedelta(seconds=30))
+        session['oauth_github_login'] = True
 
         # user = User(github_username=user_json['login'], github_avatar_url=user_json['avatar_url'], confirmed=True)
         # g.oauth_github = True

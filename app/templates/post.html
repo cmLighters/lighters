@@ -2,12 +2,12 @@
 {% import 'bootstrap/wtf.html' as wtf %}
 {% import '_macros.html' as macros %}
 
-{% block title %} cmLighters' Blog - Post {% endblock %}
+{% block title %} Lighters - Post {% endblock %}
 
 {% block page_content %}
     <div class="page-header">
         {% include '_posts.html' %}
-        <h4 class="comments"> Comments </h4>
+        <h4 class="comments"> 评论区 </h4>
         {% if current_user.can(Permission.COMMENT) %}
             <div class="comment-form">
                 {{ wtf.quick_form(form) }}

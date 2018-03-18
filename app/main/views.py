@@ -1,5 +1,6 @@
 # -*- coding: utf8 -*-
 
+import json
 from flask import session, redirect, url_for, render_template, current_app, flash, request, abort, make_response
 from flask_login import current_user, login_required
 
@@ -129,14 +130,14 @@ def new_post():
         flask_whooshalchemyplus.index_one_model(Post)
         flash('新的文章已提交')
         return redirect(url_for('.post', id=post.id))
-    return render_template('edit_post.html', form=form)
+    return render_template('edit_post.html', post_commit_button=True, form=form)
 
 
 @main.route('/edit_post/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_post(id):
     post = Post.query.get_or_404(id)
-    if current_user != post.author and current_user.can(Permission.ADMIN):
+    if current_user != post.author and not current_user.can(Permission.ADMIN):
         abort(403)
     form = PostForm()
     if form.validate_on_submit():
@@ -144,11 +145,21 @@ def edit_post(id):
         post.content = form.content.data
         db.session.add(post)
         db.session.commit()
+        flask_whooshalchemyplus.index_one_model(Post)
         flash('文章修改成功')
         return redirect(url_for('.post', id=id))
     form.title.data = post.title
     form.content.data = post.content
-    return render_template('edit_post.html', form=form)
+    return render_template('edit_post.html', post_id=id, post_commit_button=True, form=form)
+
+
+@main.route('/get_post_content/<int:id>')
+@login_required
+def get_post_content(id):
+    if id == 0:
+        return ''
+    post = Post.query.get_or_404(id)
+    return post.content
 
 
 @main.route('/follow/<username>')
@@ -212,7 +223,7 @@ def followed_by(username):
     pagination = user.followed.order_by(Follow.follow_time.desc()).paginate(
         page, per_page=current_app.config['FOLLOWERS_PER_PAGE'], error_out=False
     )
-    print pagination.items
+    #print pagination.items
     follows = [ { 'user': item.followed, 'follow_time': item.follow_time} for item in pagination.items ]
     return render_template('followers.html', user=user, title='Followed of',
                            endpoint='.followed_by', follows=follows, pagination=pagination)
@@ -278,9 +289,7 @@ def get_apis():
 @main.route("/search")
 def keyword_search():
     keyword = request.args.get('q')
-    print keyword
     results = Post.query.whoosh_search(keyword,fields=['content'],limit=20).all()
-    print results
     # or
     #results = Post.query.filter(...).msearch(keyword,fields=['title'],limit=20).filter(...)
     page = request.args.get('page', 1, type=int)
