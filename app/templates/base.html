@@ -5,9 +5,10 @@
         {{ super() }}
         <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
         <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/blog.css') }}">
-        <link href="https://cdn.bootcss.com/highlight.js/9.12.0/styles/monokai-sublime.min.css" rel="stylesheet">
+{#        <link href="https://cdn.bootcss.com/highlight.js/9.12.0/styles/monokai-sublime.min.css" rel="stylesheet">#}
         <link href="https://cdn.bootcss.com/layer/3.1.0/theme/default/layer.css" rel="stylesheet">
+        <link href="https://cdn.bootcss.com/highlight.js/9.12.0/styles/agate.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/blog.css') }}">
         <script>
         </script>
     {% endblock %}
@@ -48,9 +49,6 @@
                 </ul>
 
                 <ul class="nav navbar-nav navbar-right">
-                    {% if post_commit_button %}
-                    <li><a class="navbar-post-commit-btn"> 保存 </a></li>
-                    {% endif %}
                     <li><a href="{{ url_for('main.new_post') }} " class="navbar-write-btn"> 写文章 </a></li>
                     <li>
                         <div class="navbar-search-div div-inactive">
@@ -100,7 +98,7 @@
     {% endblock %}
 
     {% block content %}
-        <div class="container">
+        <div class="container content-container">
             {% for message in get_flashed_messages() %}
                 <div class="feedback-message">
 {#                    <button type="button" class="close" data-dismiss="alert">&times;</button>#}
@@ -112,14 +110,28 @@
 
             {% block page_content %} {% endblock %}
         </div>
+
+        {% block footer %}
+        <footer class="footer">
+            <div class="copyright">
+                <div class="container">
+                    <p>Copyright © 2018 <a href="https://github.com/cmlighters">cmLighters.</a></p>
+                </div>
+            </div>
+        </footer>
+        {% endblock %}
+
     {% endblock %}
+
+
 
     {% block scripts %}
         {{ super() }}
         {{ moment.include_moment() }}
+        {{ moment.locale('zh-cn') }}
         {{ pagedown.include_pagedown() }}
-        <script src="//at.alicdn.com/t/font_590327_clexk0jqn96647vi.js"></script>
         <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+        <script src="//at.alicdn.com/t/font_590327_o51fptd56ggjsjor.js"></script>
         <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
         <script >hljs.initHighlightingOnLoad();</script>
         <script src="https://cdn.bootcss.com/layer/3.1.0/layer.js"></script>

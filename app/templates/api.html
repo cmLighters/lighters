@@ -1,10 +1,43 @@
 {% extends 'base.html' %}
+{% block title %} Lighters - API {% endblock %}
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/api.css') }}" />
+{% endblock %}
 
 {% block page_content %}
-    <h1 style="border-bottom: 1px solid #aaa; padding-bottom:10px;margin-bottom:35px;">网站 API 列表</h1>
-<article class="api-table-list" style="max-width:700px;margin:auto;">
+    <div class="api-sidebar">
+        <h3 >网站 API 列表</h3>
+        <ul>
+            <li class="user-api-tab active">
+                <a href="#user-api-table">
+                    <svg class="icon" aria-hidden="true">
+                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-user"></use>
+                    </svg>用户 API
+                </a>
+            </li>
+
+            <li class="post-api-tab">
+                <a href="#post-api-table">
+                    <svg class="icon" aria-hidden="true">
+                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-wenzhang"></use>
+                    </svg>文章 API
+                </a>
+            </li>
+
+            <li class="comment-api-tab">
+                <a href="#comment-api-table">
+                <svg class="icon" aria-hidden="true">
+                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-pinglun"></use>
+                </svg>评论 API
+                </a>
+            </li>
+        </ul>
+
+    </div>
+<article class="api-table-list">
 <div class="table-responsive">
-    <table class="table table-bordered">
+    <table id="user-api-table" class="table table-striped">
         <thead>
             <tr>
                 <th>用户 API说明</th>
@@ -32,7 +65,7 @@
     </table>
 </div>
 <div class="table-responsive">
-    <table class="table table-bordered">
+    <table id="post-api-table" class="table table-striped">
         <thead>
             <tr>
                 <th>文章 API说明</th>
@@ -65,7 +98,7 @@
     </table>
 </div>
     <div class="table-responsive">
-    <table class="table table-bordered">
+    <table id="comment-api-table" class="table table-striped">
         <thead>
             <tr>
                 <th>评论 API说明</th>

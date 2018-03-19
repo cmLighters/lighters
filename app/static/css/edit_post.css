@@ -1,0 +1,34 @@
+div.title-commit-hint {
+    background-color: #fff;
+    padding: 10px;
+    line-height: 30px;
+    margin-bottom: 10px;
+}
+
+div.title-commit-hint>input#title-input {
+    outline: none;
+    color: #4acaa8;
+    border: none;
+    width: 500px;
+    border-right: 1px solid #bbb;
+    font-size: 16px;
+}
+
+div.title-commit-hint>button#post-commit-btn {
+    color: #fff;
+    display: inline-block;
+    border: none;
+    width: 70px;
+    background: #FF7055;
+    border-radius: 20px;
+    margin-left: 17px;
+    text-align: center;
+}
+
+div.title-commit-hint>span#post-edit-hint {
+    float: right;
+}
+
+div.title-commit-hint>span#post-edit-hint>a {
+    color: #4acaa8;
+}

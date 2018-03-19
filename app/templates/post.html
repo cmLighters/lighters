@@ -4,9 +4,15 @@
 
 {% block title %} Lighters - Post {% endblock %}
 
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/post.css') }}" />
+{% endblock %}
+
 {% block page_content %}
-    <div class="page-header">
+    <div class="post-page">
         {% include '_posts.html' %}
+        <div class="post-comments">
         <h4 class="comments"> 评论区 </h4>
         {% if current_user.can(Permission.COMMENT) %}
             <div class="comment-form">
@@ -14,6 +20,7 @@
             </div>
         {% endif %}
         {% include '_comments.html' %}
+        </div>
         {% if pagination %}
         <div class="pagination">
             {{ macros.pagination_widget(pagination, '.post', fragment='#comments', id=posts[0].id) }}

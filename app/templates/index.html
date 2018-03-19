@@ -6,23 +6,90 @@
 {#    <div class="page-header">#}
 {#        <h1> Hello, {% if current_user.is_authenticated %} {{ current_user.username }} {% else %} Stranger {% endif %}! </h1>#}
 {#    </div>#}
-    <div class="post-tabs">
-        <ul class="nav nav-tabs">
-            <li {% if not show_followed %} class="active" {% endif %}><a href="{{ url_for('.show_all') }}">所有文章</a></li>
+    <div class="index-tabs">
+        <ul >
+            <li {% if not show_followed %} class="active" {% endif %}>
+                <a href="{{ url_for('.show_all') }}">
+                    <svg class="icon" aria-hidden="true">
+                        <use xlink:href="#icon-wenzhang"></use>
+                    </svg>所有文章
+                </a>
+            </li>
             {% if current_user.is_authenticated %}
-            <li {% if show_followed %} class="active" {% endif %}><a href="{{ url_for('.show_followed') }}">我关注的</a></li>
+            <li {% if show_followed %} class="active" {% endif %}>
+                <a href="{{ url_for('.show_followed') }}">
+                    <svg class="icon" aria-hidden="true">
+                        <use xlink:href="#icon-guanzhuderen"></use>
+                    </svg>我关注的
+                </a>
+            </li>
             {% endif %}
         </ul>
+    </div>
+    {% if not posts %}
+        <ul class="posts">
+        <li class="post">
+        <div class="post-content">
+        {% if show_followed %}
+            <div class="post-body non-followed-hint"><h3>您尚未关注其他用户或您关注的用户未发布过文章</h3></div>
+        {% else %}
+            <div class="post-body non-posts-hint"><h3>网站尚未有人发布过文章，快发布第一篇文章吧。</h3></div>
+        {% endif %}
+        </div>
+        </li>
+        </ul>
+    {% else %}
         {% include '_posts.html' %}
-    </div>
-    {% if pagination %}
-    <div class="pagination">
-        {{ macros.pagination_widget(pagination, '.index') }}
-    </div>
+        {% if pagination %}
+        <div class="pagination">
+            {{ macros.pagination_widget(pagination, '.index') }}
+        </div>
+        {% endif %}
     {% endif %}
 {% endblock %}
 
 {% block scripts %}
     {{ super() }}
     {{ pagedown.include_pagedown() }}
+    <script>
+
+        $(function() {
+            $('.post-body').each(function () {
+                var tmp_height = 0;
+                $.each($(this).children(), function(index, value) {
+                    console.log(this);
+                    tmp_height += $(value).outerHeight(true);
+                    if (tmp_height + $(this[index+1]).outerHeight(true) > 200) {
+                        $(this).parent().next().prepend("<a class='post-toggle-btn toggle-off never-clicked'><span class='label label-primary'>查看全文</span></a>");
+                        $(this).parent().height(tmp_height);
+                        return false;
+                    }
+                });
+            })
+        });
+
+        $('div.post-footer').on('click', 'a.post-toggle-btn', function() {
+            if ($(this).hasClass('never-clicked')) {
+                $(this).removeClass('never-clicked');
+                this.overflow_height = $(this).parent().prev().css('height');
+                this.overflow_max_height= $(this).parent().prev().css('max-height');
+                console.log(this.overflow_height);
+                console.log(this.overflow_max_height);
+            }
+            console.log(this);
+            //var overflow_height, overflow_max_height;
+            if ($(this).hasClass('toggle-on')) {
+                $(this).removeClass('toggle-on').addClass('toggle-off');
+                $(this).parent().prev().css({'height': this.overflow_height, 'max-height':this.overflow_max_height});
+                $(this).children('span').text('查看全文');
+            } else {
+                $(this).removeClass('toggle-off').addClass('toggle-on');
+                $(this).parent().prev().css({'height': 'fit-content', 'max-height':'fit-content'});
+                $(this).children('span').text('收起文章');
+            }
+
+         //   $(this).children('span').text('收起文章');
+         //   $(this).parent().prev().css({'height': 'fit-content', 'max-height':'fit-content'});
+        });
+    </script>
 {% endblock %}

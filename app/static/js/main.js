@@ -84,3 +84,11 @@ String.prototype.trim = function() {
     while (ws.test(str.charAt(--i)));
     return str.slice(0, i + 1);
 }
+
+
+// highlight.js 代码高亮： https://www.jiangfei.net/jianzhan/1098.html
+$(function() {
+    $("code").each(function(){
+        $(this).html("<ul><li>" + $(this).html().replace(/\n/g,"\n</li><li>") +"\n</li></ul>");
+    });
+})

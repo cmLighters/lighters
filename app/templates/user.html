@@ -2,9 +2,13 @@
 {% import '_macros.html' as macros %}
 
 {% block title %} Lighters - Profile {% endblock %}
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}" />
+{% endblock %}
 
 {% block page_content %}
-    <img class="img-rounded profile-thumbnail" src="{{ user.gravatar(size=256) }}">
+    <img class="profile-avatar" src="{{ user.gravatar(size=128) }}">
     <div class="profile-header">
         <h1> {{ user.username }} </h1>
         {% if user.name or user.location %}
@@ -19,8 +23,8 @@
         <p><a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
         {% endif %}
         {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
-        <p>Member since {{ moment(user.member_since).format('L') }}. Last seen {{ moment(user.last_seen).fromNow() }}.</p>
-        <p>{{ user.posts.count() }} blog posts. {{ user.comments.count() }} comments.</p>
+        <p>注册于 {{ moment(user.member_since).format('L') }}， 上次访问时间 {{ moment(user.last_seen).fromNow() }}。</p>
+        <p>{{ user.posts.count() }} 篇文章， {{ user.comments.count() }} 个评论。</p>
         <p>
             {% if current_user.can(Permission.FOLLOW) and current_user != user %}
                 {% if not current_user.is_following(user) %}
@@ -45,12 +49,58 @@
         {% endif %}
         </p>
     </div>
-    <h3> {{ user.username }}的文章</h3>
-    {% include '_posts.html' %}
-    {% if pagination %}
-    <div class="pagination">
-        {{ macros.pagination_widget(pagination, '.user', username=username) }}
-    </div>
+    {% if posts %}
+        <h3 class="posts-header"> 发表的文章</h3>
+        {% include '_posts.html' %}
+        {% if pagination %}
+        <div class="pagination">
+            {{ macros.pagination_widget(pagination, '.user', username=username) }}
+        </div>
+        {% endif %}
     {% endif %}
 {% endblock %}
 
+{% block scripts %}
+    {{ super() }}
+    <script>
+
+        $(function() {
+            $('.post-body').each(function () {
+                var tmp_height = 0;
+                $.each($(this).children(), function(index, value) {
+                    console.log(this);
+                    tmp_height += $(value).outerHeight(true);
+                    if (tmp_height + $(this[index+1]).outerHeight(true) > 200) {
+                        $(this).parent().next().prepend("<a class='post-toggle-btn toggle-off never-clicked'><span class='label label-primary'>查看全文</span></a>");
+                        $(this).parent().height(tmp_height);
+                        return false;
+                    }
+                });
+            })
+        });
+
+        $('div.post-footer').on('click', 'a.post-toggle-btn', function() {
+            if ($(this).hasClass('never-clicked')) {
+                $(this).removeClass('never-clicked');
+                this.overflow_height = $(this).parent().prev().css('height');
+                this.overflow_max_height= $(this).parent().prev().css('max-height');
+                console.log(this.overflow_height);
+                console.log(this.overflow_max_height);
+            }
+            console.log(this);
+            //var overflow_height, overflow_max_height;
+            if ($(this).hasClass('toggle-on')) {
+                $(this).removeClass('toggle-on').addClass('toggle-off');
+                $(this).parent().prev().css({'height': this.overflow_height, 'max-height':this.overflow_max_height});
+                $(this).children('span').text('查看全文');
+            } else {
+                $(this).removeClass('toggle-off').addClass('toggle-on');
+                $(this).parent().prev().css({'height': 'fit-content', 'max-height':'fit-content'});
+                $(this).children('span').text('收起文章');
+            }
+
+         //   $(this).children('span').text('收起文章');
+         //   $(this).parent().prev().css({'height': 'fit-content', 'max-height':'fit-content'});
+        });
+    </script>
+{% endblock %}

@@ -11,7 +11,7 @@
 
 {% block page_content %}
     <div class="login-header-logo">
-        <a href="{{ url_for('main.index') }}"><img src="{{ url_for('static', filename='images/logo_pic.jpg') }}"></a>
+        <a href="{{ url_for('main.index') }}"><img src="{{ url_for('static', filename='images/logo.png') }}"></a>
     </div>
     <div class="login-container">
         <div class="page-header">
@@ -40,3 +40,5 @@
     </div>
 
 {% endblock %}
+
+{% block footer %} {% endblock %}

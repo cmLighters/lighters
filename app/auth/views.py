@@ -39,7 +39,7 @@ def login():
 @auth.route('/logout')
 @login_required
 def logout():
-    if session['oauth_github_login'] is True:
+    if 'oauth_github_login' in session and session['oauth_github_login'] is True:
         session['oauth_github_login'] = False
     logout_user()
     flash('您已退出账户')

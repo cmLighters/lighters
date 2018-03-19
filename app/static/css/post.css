@@ -1,0 +1,21 @@
+.post-page {
+    margin-top: 0;
+}
+
+.post-page li.post .post-body {
+    max-height: max-content;
+}
+
+.post-page .post-comments {
+    margin: auto;
+    width: 70%;
+}
+
+.post-page .post-comments>h4.comments {
+    margin-top: 40px;
+    margin-bottom: 0;
+}
+
+.post-page .post-comments>div.comment-form {
+    margin: 0;
+}
