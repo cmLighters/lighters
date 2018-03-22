@@ -102,10 +102,12 @@ def post(id):
             comment = Comment(content=comment_content, post=post, author=current_user._get_current_object())
             db.session.add(comment)
             db.session.commit()
+            post.postviews -= 1    # 减1忽略评论后的跳转到文章页面的阅读次数
             flash('评论提交成功')
             return redirect(url_for('.post', id=id, page=-1))
         else:
             abort(403)
+    post.postviews += 1    #只有 get 的阅读数加1， post的忽略
     page = request.args.get('page', 1, type=int)
     if page == -1:
         page = (post.comments.count() - 1) // current_app.config['COMMENTS_PER_PAGE'] + 1
@@ -146,6 +148,7 @@ def edit_post(id):
         db.session.add(post)
         db.session.commit()
         flask_whooshalchemyplus.index_one_model(Post)
+        post.postviews -= 1    # 减1忽略编辑文章后的跳转到文章页面的阅读次数
         flash('文章修改成功')
         return redirect(url_for('.post', id=id))
     form.title.data = post.title
@@ -160,6 +163,19 @@ def get_post_content(id):
         return ''
     post = Post.query.get_or_404(id)
     return post.content
+
+
+@main.route('/delete_post/<int:id>')
+@login_required
+def delete_post(id):
+    post = Post.query.get_or_404(id)
+    if post.author_id != current_user.id and not current_user.is_administrator():
+        abort(403)
+    if post.comments.count() > 0:
+        for comment in post.comments.all():
+            db.session.delete(comment)
+    db.session.delete(post)
+    return redirect(url_for('.user', username=current_user.username))
 
 
 @main.route('/follow/<username>')

@@ -286,6 +286,8 @@ class Post(db.Model):
 
     comments = db.relationship('Comment', backref='post', lazy='dynamic')
 
+    postviews = db.Column(db.Integer, default=0)
+
     @staticmethod
     def on_changed_content(target, value, oldvalue, initiator):
         allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',

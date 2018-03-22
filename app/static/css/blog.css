@@ -6,7 +6,7 @@ body {
 
 }
 
-ul, p {
+.post-body ul, p {
 margin-bottom: 16px;
 }
 
@@ -245,6 +245,7 @@ div.post-header svg.icon {
     padding-right: 0px;
     padding-top: 0px;
     margin-left: 12px;
+    border-radius: 50%;
 }
 
 div.post-body {

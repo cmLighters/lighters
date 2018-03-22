@@ -11,6 +11,16 @@
                         </svg>
                         {{ moment(post.created_at).format('ll') }}
                     </span>
+                    <span style="float:right">
+                        <svg class="icon" aria-hidden="true" style="background-color: #ffec00;">
+                            <use xlink:href="#icon-iconyueduliangshi"></use>
+                        </svg> <span>{{ post.postviews }} 次阅读</span>
+                    </span>
+                    <span style="float:right">
+                        <svg class="icon" aria-hidden="true">
+                            <use xlink:href="#icon-pinglun3"></use>
+                        </svg> <span> {{ post.comments.count() }}个评论</span>
+                    </span>
                 </div>
                 <div class="post-body">
                 <h1> {{ post.title }}</h1>
@@ -34,9 +44,17 @@
                     <a href="{{ url_for('.post', id=post.id) }}">
                         <span class="label label-default">查看</span>
                     </a>
-                    <a href="{{ url_for('.post', id=post.id) }}#comments">
-                        <span class="label label-primary">{{ post.comments.count() }}个评论</span>
+                    {% if current_user == post.author %}
+                    <a href="{{ url_for('.delete_post', id=post.id) }}"
+                         onClick="return confirm('删除后的文章无法找回，文章评论也会被全部删除，请确定是否删除?');">
+                        <span class="label label-danger">删除</span>
                     </a>
+                    {% elif current_user.is_administrator() %}
+                        <a href="{{ url_for('.delete_post', id=post.id) }}"
+                            onClick="return confirm('请管理员珍惜自己的权限，尽量降低对用户文章的干预，请确定是否删除?');">
+                            <span class="label label-danger">删除[Admin]</span>
+                        </a>
+                    {% endif %}
                 </div>
             </div>
         </li>
