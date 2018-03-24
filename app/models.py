@@ -288,10 +288,12 @@ class Post(db.Model):
 
     postviews = db.Column(db.Integer, default=0)
 
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
+
     @staticmethod
     def on_changed_content(target, value, oldvalue, initiator):
         allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
-                    'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul', 'h1', 'h2', 'h3', 'p']
+                    'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul', 'h1', 'h2', 'h3', 'h4', 'h5', 'p']
         target.content_html = bleach.linkify(bleach.clean(
             markdown.markdown(value, output_format='html'), tags=allowed_tags, strip=True
         ))
@@ -351,6 +353,40 @@ class Comment(db.Model):
         if body is None or body == '':
             raise ValidationError('comment does not have a body')
         return Comment(body=body)
+
+    def __repr__(self):
+        return '<Comment %r>' % self.content
+
+
+TagPostMapping = db.Table('tag_post_mappings',
+    db.Column('tag_id', db.Integer, db.ForeignKey('tags.id'), primary_key=True),
+    db.Column('post_id', db.Integer, db.ForeignKey('posts.id'), primary_key=True)
+)
+
+
+class Tag(db.Model):
+    __tablename__ = 'tags'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(32))
+
+    posts = db.relationship('Post',
+                            secondary=TagPostMapping,
+                            backref=db.backref('tags', lazy='dynamic'),
+                            lazy='dynamic')
+
+    def __repr__(self):
+        return '<Tag %r>' % self.name
+
+
+class Category(db.Model):
+    __tablename__ = 'categories'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(32))
+
+    posts = db.relationship('Post', backref='category', lazy='dynamic')     # backref make every post object has it's category object
+
+    def __repr__(self):
+        return '<Category %r>' % self.name
 
 
 db.event.listen(Post.content, 'set', Post.on_changed_content)

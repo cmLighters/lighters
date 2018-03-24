@@ -8,10 +8,11 @@ from . import main
 from .forms import NameForm, EditProfileForm, AdminEditProfileForm, PostForm, CommentForm
 from ..email import send_email
 from .. import db
-from ..models import Role, User, Permission, Post, Follow, Comment
+from ..models import Role, User, Permission, Post, Follow, Comment, Tag, Category
 from ..decorators import admin_require
 from ..decorators import permission_require
 import flask_whooshalchemyplus
+import copy
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -126,6 +127,22 @@ def new_post():
     if form.validate_on_submit():
         post = Post(title=form.title.data, content=form.content.data,
                     author=current_user)
+        #tag = []
+        #for tag in form.tags.data.split(','):
+        #if tag:
+        print '*' * 40, post.tags
+        tag_str_list = form.tags.data.split(',')
+        for tag_str in tag_str_list:
+            tag = Tag.query.filter_by(name=tag_str).first()
+            if not tag:     # new post tag
+                tag = Tag(name=tag_str)
+                db.session.add(tag)
+            post.tags.append(tag)
+        category = Category.query.filter_by(name=form.category.data).first()
+        if not category:
+            category = Category(name=form.category.data)
+            db.session.add(category)
+        post.category = category
         db.session.add(post)
         db.session.commit()
         #with app.app_context():
@@ -144,25 +161,49 @@ def edit_post(id):
     form = PostForm()
     if form.validate_on_submit():
         post.title = form.title.data
+
+        #old_tags = post.tags
+        remove_tags = []
+        tag_str_list = form.tags.data.split(',')
+        for tag in post.tags:
+            if tag.name not in tag_str_list:
+                post.tags.remove(tag)
+                remove_tags.append(tag)
+        for tag_str in tag_str_list:
+            tag = Tag.query.filter_by(name=tag_str).first()
+            if not tag:     # new post tag
+                tag = Tag(name=tag_str)
+                db.session.add(tag)
+            if not tag in post.tags:
+                post.tags.append(tag)
+        for tag in remove_tags:
+            if tag.posts.count() == 0:
+                print 'delete tag: %s because there is not any post use this tag' % tag.name
+                db.session.delete(tag)
+
+        if form.category.data != post.category.name:
+            old_category = post.category
+            category = Category.query.filter_by(name=form.category.data).first()
+            if not category:
+                category = Category(name=form.category.data)
+                db.session.add(category)
+            post.category = category
+            #print old_category.name, old_category.posts.count()
+            if old_category.posts.count() == 0:
+                print 'delete category: %s because there is not any post in this category' % old_category.name
+                db.session.delete(old_category)
+        #post.tags.data = form.tags.data
         post.content = form.content.data
         db.session.add(post)
         db.session.commit()
         flask_whooshalchemyplus.index_one_model(Post)
-        post.postviews -= 1    # 减1忽略编辑文章后的跳转到文章页面的阅读次数
         flash('文章修改成功')
         return redirect(url_for('.post', id=id))
     form.title.data = post.title
+    form.tags.data = ','.join(tag.name for tag in post.tags)
+    form.category.data = post.category.name
     form.content.data = post.content
     return render_template('edit_post.html', post_id=id, post_commit_button=True, form=form)
-
-
-@main.route('/get_post_content/<int:id>')
-@login_required
-def get_post_content(id):
-    if id == 0:
-        return ''
-    post = Post.query.get_or_404(id)
-    return post.content
 
 
 @main.route('/delete_post/<int:id>')
@@ -174,7 +215,29 @@ def delete_post(id):
     if post.comments.count() > 0:
         for comment in post.comments.all():
             db.session.delete(comment)
+
+    remove_tags = []
+    for tag in post.tags:
+        post.tags.remove(tag)
+        remove_tags.append(tag)
+    for tag in remove_tags:
+        if tag.posts.count() == 0:
+            print 'delete tag: %s because there is not any post use this tag' % tag.name
+            db.session.delete(tag)
+    #old_tags = post.tags.all()
+    old_category = post.category
+
     db.session.delete(post)
+
+    # for old_tag in old_tags:
+    #     if old_tag.posts.count() == 0:
+    #         print 'delete tag: %s because there is not any post use this tag' % old_tag.name
+    #         db.session.delete(old_tag)
+    if old_category.posts.count() == 0:
+        print 'delete category: %s because there is not any post in this category' % old_category.name
+        db.session.delete(old_category)
+
+
     return redirect(url_for('.user', username=current_user.username))
 
 

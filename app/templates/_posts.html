@@ -30,6 +30,26 @@
                 {% else %}
                     {{ post.content }}
                 {% endif %}
+
+                <div>
+                {% if post.category %}
+                    <a class="post-category" href="{{ url_for('main.index', id=post.category.id) }}">
+                        <svg class="icon" aria-hidden="true">
+                            <use xlink:href="#icon-guidang"></use>
+                        </svg> <span> {{ post.category.name }}</span>
+                    </a>
+                {% endif %}
+
+                {% for tag in post.tags %}
+                    <a class="post-tag" href="{{ url_for('main.index', id=tag.id) }}">
+                        <svg class="icon" aria-hidden="true">
+                            <use xlink:href="#icon-tubiaozhizuomoban-"></use>
+                        </svg> <span> {{ tag.name }}</span>
+                    </a>
+                {% endfor %}
+                </div>
+
+
                 </div>
                 <div class="post-footer">
                     {% if current_user == post.author %}

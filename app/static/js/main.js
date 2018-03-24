@@ -87,8 +87,22 @@ String.prototype.trim = function() {
 
 
 // highlight.js 代码高亮： https://www.jiangfei.net/jianzhan/1098.html
+/*
 $(function() {
+
     $("code").each(function(){
         $(this).html("<ul><li>" + $(this).html().replace(/\n/g,"\n</li><li>") +"\n</li></ul>");
     });
 })
+*/
+
+// numberMillis 毫秒
+function sleep(numberMillis) {
+   var now = new Date();
+   var exitTime = now.getTime() + numberMillis;
+   while (true) {
+      now = new Date();
+      if (now.getTime() > exitTime)
+      　　return;
+   }
+}

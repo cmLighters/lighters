@@ -20,11 +20,13 @@
             </div>
         {% endif %}
         {% include '_comments.html' %}
-        </div>
+
         {% if pagination %}
         <div class="pagination">
             {{ macros.pagination_widget(pagination, '.post', fragment='#comments', id=posts[0].id) }}
         </div>
         {% endif %}
+        </div>
+
     </div>
 {% endblock %}

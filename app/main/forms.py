@@ -45,6 +45,8 @@ class AdminEditProfileForm(FlaskForm):
 
 class PostForm(FlaskForm):
     title = StringField('请输入文章标题', validators=[DataRequired(), Length(1, 128)])
+    tags = StringField('请输入文章标签，可输入多个', validators=[ DataRequired(), Length(1, 128)])
+    category = StringField('请输入文章标签', validators=[DataRequired(), Length(1, 32)])
     content = PageDownField('请输入文章内容', validators=[DataRequired()], id='post-form-content')
     submit = SubmitField('提交', id='post-form-submit')
 

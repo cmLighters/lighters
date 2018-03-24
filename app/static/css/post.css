@@ -2,6 +2,11 @@
     margin-top: 0;
 }
 
+.post-page .posts {
+    width: 70%;
+    margin: 0 auto;
+}
+
 .post-page li.post .post-body {
     max-height: max-content;
 }

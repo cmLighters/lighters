@@ -39,5 +39,7 @@ def create_app(config_name):
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
     from .api import api as api_blueprint
     app.register_blueprint(api_blueprint, url_prefix='/api/v1')
+    from .inner_api import inner_api as inner_api_blueprint
+    app.register_blueprint(inner_api_blueprint, url_prefix='/inner_api/v0.1')
 
     return app

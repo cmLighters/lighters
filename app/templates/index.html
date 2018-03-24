@@ -26,6 +26,7 @@
             {% endif %}
         </ul>
     </div>
+    <div class="posts-pagination">
     {% if not posts %}
         <ul class="posts">
         <li class="post">
@@ -40,12 +41,15 @@
         </ul>
     {% else %}
         {% include '_posts.html' %}
+
         {% if pagination %}
         <div class="pagination">
             {{ macros.pagination_widget(pagination, '.index') }}
         </div>
         {% endif %}
+
     {% endif %}
+    </div>
 {% endblock %}
 
 {% block scripts %}
@@ -58,7 +62,7 @@
                 var tmp_height = 0;
                 $.each($(this).children(), function(index, value) {
                     tmp_height += $(value).outerHeight(true);
-                    if (tmp_height + $(this[index+1]).outerHeight(true) > 200) {
+                    if (tmp_height + $(this[index+1]).outerHeight(true) > 500) {
                         $(this).parent().next().prepend("<a class='post-toggle-btn toggle-off never-clicked'><span class='label label-primary'>查看全文</span></a>");
                         $(this).parent().height(tmp_height);
                         return false;

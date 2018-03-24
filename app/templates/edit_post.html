@@ -8,6 +8,50 @@
     {{ super() }}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/edit_post.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='editor_md/css/editormd.min.css') }}" />
+    <link href="https://cdn.bootcss.com/select2/4.0.6-rc.1/css/select2.min.css" rel="stylesheet">
+
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+    <script>
+        var tags_index_list = [], tags_dict_list = [];
+        var category_dict_list = [];
+        {% if post_id %}
+        var tags_str = "{{ form.tags.data }}";
+        if (tags_str) {
+            $.getJSON("{{ url_for('inner_api.get_all_tags', post_id=post_id, _external=True) }}", function (data) {
+                tags_dict_list = data;
+                //console.log(tags_index_list);
+
+                var l = [], d={};
+                for (var tag_obj of data) {
+                    d[tag_obj.text] = String(tag_obj.id);
+                }
+                //console.log(data);
+                //console.log(d);
+                for (var tag_str of tags_str.split(',')) {
+                    l.push(d[tag_str]);
+                }
+                //console.log(l);
+                tags_index_list = l;
+
+                //$("#multi-select2-tags").select2({'data': data, width:'30%', tags:true}).val(l).trigger('change');
+            })
+        }
+
+        var category_str = "{{ form.category.data }}";
+        category_dict_list = [{text: category_str, id: 0}];
+
+        function sleep(numberMillis) {
+           var now = new Date();
+           var exitTime = now.getTime() + numberMillis;
+           while (true) {
+              now = new Date();
+              if (now.getTime() > exitTime)
+                return;
+           }
+        }
+        sleep(200);
+        {% endif %}
+    </script>
 {% endblock %}
 
 {#{% block body %}#}
@@ -24,6 +68,10 @@
     <div id="layout">
         <div class="title-commit-hint">
             <input name="title" id="title-input" type="text" placeholder="请输入文章标题" required>
+            {#<input name="category" id="category-input" type="text" placeholder="请输入分类" required>
+            <input name="tag" id="tags-input" type="text" placeholder="请输入标签" required>#}
+            <select id="single-select2-category" class="select_gallery" style="width:13%"></select>
+            <select id="multi-select2-tags" class="select_gallery-multiple" multiple="multiple"  style="width:32%; height:32px;"></select>
             <button id="post-commit-btn"> 保存 </button>
             <span id="post-edit-hint"> 支持
                 <a href="https://guides.github.com/features/mastering-markdown/">Markdown 语法
@@ -34,21 +82,27 @@
     </div>
 {% endblock %}
 </div>
+
 {% endblock %}
 
 {% block scripts %}
+
+
     {{ super() }}
     <script src="{{ url_for('static', filename='editor_md/editormd.min.js') }}"></script>
     <script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+    <script src="https://cdn.bootcss.com/select2/4.0.6-rc.1/js/select2.full.min.js"></script>
+    <script src="https://cdn.bootcss.com/select2/4.0.6-rc.1/js/i18n/zh-CN.js"></script>
     <script>
     var testEditor;
 
     $(function() {
-        $('input#title-input').val($('input#title').val());
+
+
         {% if post_id %}
-            url = '{{ url_for('main.get_post_content', id=post_id, _external=True) }}'   // 编辑文章，返回之前保存的文章内容
+            url = '{{ url_for('inner_api.get_post_content', id=post_id, _external=True) }}'   // 编辑文章，返回之前保存的文章内容
         {% else %}
-            url = '{{ url_for('main.get_post_content', id=0, _external=True) }}'   // 写新文章，返回''来初始化编辑器
+            url = '{{ url_for('inner_api.get_post_content', id=0, _external=True) }}'   // 写新文章，返回''来初始化编辑器
         {% endif %}
         $.get(url, function(content){
             testEditor = editormd("test-editormd", {
@@ -94,13 +148,133 @@
                 }
             });
         });
+
+
+        $("#single-select2-category").select2({
+            placeholder: '请选择文章栏目',
+            width: '13%',
+            tags: true,
+            data: category_dict_list,
+            ajax: {
+                url: "{{ url_for('inner_api.get_all_categories', _external=True) }}",    //"/inner_api/categories",
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page
+                    };
+                },
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data,
+                        {#pagination: {
+                            more: (params.page * 20) < data.total_count
+                        }#}
+                    };
+                },
+                cache: true
+            },
+            escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+            //minimumInputLength: 1,   为了让所有提示生效
+            templateResult: formatRepoProvince, // omitted for brevity, see the source of this page
+            templateSelection: formatRepoProvince // omitted for brevity, see the source of this page
+        }).val(['0']).trigger('change');
+
+
+
+        console.log(tags_dict_list);
+        $("#multi-select2-tags").select2({
+            placeholder: '请选择文章标签，或输入新的标签，可选多个',
+            width: '30%',
+            allowClear: true,
+            tags: true,
+            maximumSelectionLength: 5,
+            multiple: true,
+            data: tags_dict_list,
+            ajax: {
+                url: "{{ url_for('inner_api.get_all_tags', _external=True) }}",       //   "/inner_api/tags",
+                dataType: 'json',
+                delay: 500,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page
+                    };
+                },
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data,
+                        {#pagination: {
+                            more: (params.page * 20) < data.total_count
+                        }#}
+                    };
+                },
+                cache: true
+            },
+            escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+            //minimumInputLength: 1,   //为了让所有提示生效
+            templateResult: formatRepoProvince, // omitted for brevity, see the source of this page
+            templateSelection: formatRepoProvince // omitted for brevity, see the source of this page
+        }).val(tags_index_list).trigger('change');
+
+        $('input#title-input').val($('input#title').val());
+        //$('input#category-input').val($('input#category').val());
+        //$('input#tags-input').val($('input#tags').val());
+        if ($('input#category').val().trim()) {
+            //set_category_input($('input#category').val().trim());
+        }
+
     });
+
+    function formatRepoProvince(repo) {
+        if (repo.loading) return repo.text;
+        var markup = "<div>"+repo.text+"</div>";
+        return markup;
+    }
+
+    function get_category_input() {
+        return $('#single-select2-category').find('option:selected').text().trim();
+    }
+
+    function set_category_input(category_name) {
+        $('#select2-single-select2-category-container').html('<div>' + category_name + '</div>');
+    }
+
+    function get_tags_input() {
+        var options = $('#multi-select2-tags').select2('data');
+        var tags='';
+        for (var option of options) {
+            console.log(option)
+            tags += option.text.trim() +',';
+        }
+        console.log(tags);
+        return tags = tags.slice(0, -1);       // delete the last char ';'
+    }
+
+    function set_tags_input() {
+        $('#multi-select2-tags').val(['0', '2', '4']).trigger('change');
+    }
 
     $('#post-commit-btn').click(function () {
         title = $('#title-input').val();
         if (!title.trim()) {
             alert('请输入文章标题');
-            return false
+            return false;
+        }
+        category = get_category_input().trim();
+        if (!category) {
+            alert('请输入文章分类');
+            return false;
+        }
+        tags = get_tags_input().trim();
+        if (!tags) {
+            alert('请输入文章标签');
+            return false;
         }
         markdown = $('textarea.editormd-markdown-textarea').val();
         if (!markdown.trim()) {
@@ -108,6 +282,8 @@
             return false;
         }
         $('input#title').val($('#title-input').val());
+        $('input#category').val(category);
+        $('input#tags').val(tags);
         $('textarea#flask-pagedown-content').val(markdown);
         $('#post-form-submit').click();
     });

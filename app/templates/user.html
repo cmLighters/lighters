@@ -51,12 +51,15 @@
     </div>
     {% if posts %}
         <h3 class="posts-header"> 发表的文章</h3>
+        <div class="posts-pagination">
         {% include '_posts.html' %}
+
         {% if pagination %}
         <div class="pagination">
             {{ macros.pagination_widget(pagination, '.user', username=username) }}
         </div>
         {% endif %}
+        </div>
     {% endif %}
 {% endblock %}
 
@@ -68,7 +71,7 @@
             $('.post-body').each(function () {
                 var tmp_height = 0;
                 $.each($(this).children(), function(index, value) {
-                    console.log(this);
+                    //console.log(this);
                     tmp_height += $(value).outerHeight(true);
                     if (tmp_height + $(this[index+1]).outerHeight(true) > 200) {
                         $(this).parent().next().prepend("<a class='post-toggle-btn toggle-off never-clicked'><span class='label label-primary'>查看全文</span></a>");

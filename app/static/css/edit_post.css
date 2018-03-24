@@ -9,9 +9,9 @@ div.title-commit-hint>input#title-input {
     outline: none;
     color: #4acaa8;
     border: none;
-    width: 500px;
-    border-right: 1px solid #bbb;
-    font-size: 16px;
+    width: 30%;
+    //border-right: 1px solid #bbb;
+    font-size: 14px;
 }
 
 div.title-commit-hint>button#post-commit-btn {
@@ -31,4 +31,40 @@ div.title-commit-hint>span#post-edit-hint {
 
 div.title-commit-hint>span#post-edit-hint>a {
     color: #4acaa8;
+}
+
+#single-select2-category + span.select2.select2-container {
+    //height: 23px;
+    //width: 13%;
+    border-left: 1px solid #bbb;
+    border-right: 1px solid #bbb;
+    //margin-left: 15px;
+    font-size: 13px;
+}
+
+#single-select2-category + span.select2.select2-container > .selection > .select2-selection {
+    border: none;
+    padding-left: 15px;
+}
+
+#multi-select2-tags + span.select2.select2-container > .selection > .select2-selection {
+    border: none;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-left: 15px;
+}
+
+#multi-select2-tags + span.select2.select2-container > .selection > .select2-selection > ul > li{
+    background-color: #4acaa8;
+    line-height: 20px;
+    border: none;
+}
+
+#multi-select2-tags + span.select2.select2-container > .selection > .select2-selection > ul > li:last-child {
+    background-color: #fff;
+}
+
+#multi-select2-tags + span.select2.select2-container > .selection > .select2-selection > ul > li > div {
+    display: inline-block;
+    margin-left: 3px;
 }

@@ -33,7 +33,7 @@ class Config(object):
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URI') or \
-                                             'mysql+pymysql://{username}:{password}@{hostname}/{database}'.format(
+                                             'mysql+pymysql://{username}:{password}@{hostname}/{database}?charset=utf8'.format(
                                                  username='testuser', password='asdfjkl;', hostname='127.0.0.1',
                                                  database='cm_flask_blog'
                                              )
@@ -42,7 +42,7 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URI') or \
-                                             'mysql+pymysql://{username}:{password}@{hostname}/{database}'.format(
+                                             'mysql+pymysql://{username}:{password}@{hostname}/{database}?charset=utf8'.format(
                                                  username='testuser', password='asdfjkl;', hostname='127.0.0.1',
                                                  database='test_cm_flask_blog'
                                              )
